@@ -140,5 +140,3 @@ La perte de connectivité est alors détectée et signalée dans le rapport de s
 Ce projet met en pratique les notions d’automatisation et de supervision réseau dans un environnement virtualisé.
 Il illustre l’intérêt d’une infrastructure déployée de manière reproductible et d’une configuration automatisée, tout en restant simple et compréhensible.
 
-
-Dis-moi ce que tu préfères 💪
