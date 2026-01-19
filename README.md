@@ -1,126 +1,91 @@
+Projet SAÉ 5.02
+Supervision automatisée d’une infrastructure réseau virtualisée
+1. Présentation
+Ce projet, dans le cadre de la SAÉ 5.02, consiste à déployer une infrastructure réseau virtualisée avec supervision.
+On utilise des équipements virtuels et des outils conteneurisés pour simuler un environnement réel, en supervisant via SNMP et ICMP, de façon reproductible et automatisée.
+3. Objectifs
 
-# 📘 SAÉ 5.02 — Supervision réseau avec Docker et Ansible
+    Déployer une infrastructure réseau virtualisée
+    Installer des routeurs virtuels (FRRouting)
+    Superviser via SNMP et ICMP
+    Centraliser les métriques
+    Automatiser le déploiement et la configuration
 
-## Présentation du projet
+4. Périmètre
+Inclus
 
-Ce projet a été réalisé dans le cadre de la **SAÉ 5.02** du BUT Réseaux & Télécommunications.
-Il vise à mettre en œuvre une **infrastructure réseau virtualisée**, représentative d’un petit réseau d’entreprise, tout en appliquant une démarche d’**automatisation** et de **supervision**.
+    Infrastructure virtualisée
+    Routeurs FRRouting
+    Réseaux LAN et backbone
+    Supervision SNMP/ICMP
+    Visualisation (Grafana)
+    Déploiement automatisé
 
-L’objectif n’est pas uniquement de déployer un réseau fonctionnel, mais également de montrer comment celui-ci peut être **supervisé** afin de détecter rapidement une anomalie ou une perte de connectivité.
-Les informations de supervision sont centralisées dans un **dashboard**, permettant d’avoir une vue globale et claire de l’état du réseau.
+Hors périmètre
 
----
+    Équipements physiques
+    Sécurité avancée (ACL, VPN, chiffrement)
 
-## Démarche et objectifs
+4. Architecture
 
-La démarche suivie dans ce projet est la suivante :
+    Réseaux virtuels (LAN, backbone)
+    Routeurs virtuels connectés
+    Plateforme de supervision centralisée
 
-* Concevoir une architecture réseau simple et cohérente
-* Déployer cette architecture à l’aide de Docker
-* Automatiser la configuration réseau avec Ansible
-* Structurer l’automatisation en **rôles Ansible** afin d’éviter les répétitions
-* Mettre en place une **supervision centralisée**
-* Visualiser l’état du réseau et les alertes dans un **dashboard de supervision**
-* Générer un rapport de supervision
-* Tester le système par une simulation de panne
+Déployé via Docker pour rapidité et cohérence.
 
----
+5. Outils
+   
+Rôles 
+Docker / Docker Compose  -->  Déploiement infrastructure
+FRRouting   --> Routage IP
+Prometheus   --> Collecte métriques
+SNMP Exporter  -->  SNMP
+Blackbox Exporter  --> ICMP
+Grafana  --> Visualisation
+Ansible  --> Automatisation
 
-## Architecture du réseau
+6. Fonctionnement
 
-L’infrastructure repose sur **quatre conteneurs Docker** :
+    Déploiement via Docker Compose
+    Mise en place des routeurs et réseaux
+    Activation SNMP sur équipements
+    Collecte métriques par Prometheus
+    Visualisation dans Grafana
+    Automatisation via Ansible (scripts/playbooks)
 
-* **node-manager**
-  Machine d’administration exécutant Ansible et centralisant la supervision.
+L’ensemble doit pouvoir s’initialiser sans intervention manuelle.
+7. Organisation du dépôt
 
-* **router-central**
-  Routeur central assurant le routage entre les différents réseaux.
+plaintext
 
-* **client1**
-  Hôte du premier réseau local.
 
-* **client2**
-  Hôte du second réseau local.
-
-Trois réseaux Docker sont utilisés :
-
-* un réseau principal (**backbone**)
-* deux réseaux locaux (**lan_client1** et **lan_client2**)
-
----
-
-## Supervision et dashboard
-
-La supervision du réseau permet de vérifier en continu la **disponibilité des équipements** et la **connectivité entre les hôtes**.
-
-Les résultats de supervision (état des hôtes, succès ou échec des tests de connectivité) sont :
-
-* collectés automatiquement,
-* centralisés sur le **node-manager**,
-* affichés dans un **dashboard de supervision**.
-
-Ce dashboard offre une vue synthétique de l’état du réseau :
-
-* hôtes joignables ou non,
-* détection rapide d’une panne,
-* visualisation claire des alertes.
-
-Il permet ainsi de réagir rapidement en cas de problème, comme dans un contexte réel de supervision réseau en entreprise.
-
----
-
-## Organisation du projet
-
-```
-sae502-supervision/
-├── docker/
-│   └── docker-compose.yml
-├── ansible/
-│   ├── inventory/
-│   ├── playbooks/
-│   ├── roles/
-│   └── reports/
-├── scripts/
-│   └── setup_node_manager.sh
+.
+├── ansible/        # Playbooks et rôles
+├── docker/         # Docker Compose et configs
+├── grafana/        # Dashboards
+├── prometheus/     # Configurations
 └── README.md
-```
 
----
+8. Automatisation
 
-## Automatisation, supervision et alertes
+  L’automatisation repose sur :
 
-Le playbook de déploiement configure automatiquement le réseau et prépare les hôtes à être supervisés :
+Docker Compose pour l’orchestration des services
 
-```bash
-ansible-playbook ansible/playbooks/deploy.yml
-```
+Ansible pour la préparation de l’environnement et le déploiement
 
-Le playbook de supervision :
+L’objectif final est que la démonstration puisse être lancée uniquement à partir des scripts et playbooks, conformément aux attentes de la SAÉ.
 
-* teste la connectivité réseau,
-* détecte les hôtes injoignables,
-* met à jour les informations affichées dans le dashboard,
-* génère un rapport de supervision.
 
-```bash
-ansible-playbook ansible/playbooks/supervise.yml
-```
+9. État d’avancement
 
----
+    Architecture définie
+    Docker opérationnel
+    Supervision en cours
+    Automatisation en partie
 
-## Simulation de panne
 
-Une panne peut être simulée en arrêtant un conteneur client :
 
-```bash
-docker stop client2
-```
-
-Cette panne est immédiatement détectée par la supervision et visible dans le **dashboard**, ce qui permet de valider le bon fonctionnement du système d’alertes.
-
----
-
-## Conclusion
-
-Ce projet met en œuvre une infrastructure réseau automatisée et supervisée, proche d’un cas réel.
-L’utilisation d’un **dashboard de supervision** permet d’avoir une vision claire et centralisée de l’état du réseau, facilitant la détection des incidents et l’analyse du fonctionnement global.
+🔜 Prochaine étape
+Préparer la présentation orale (phase 1) et finaliser la démo automatisée (phase 2).
