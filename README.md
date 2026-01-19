@@ -35,15 +35,9 @@ Hors périmètre
 Déployé via Docker pour rapidité et cohérence.
 
 5. Outils
-   
-Rôles 
-Docker / Docker Compose  -->  Déploiement infrastructure
-FRRouting   --> Routage IP
-Prometheus   --> Collecte métriques
-SNMP Exporter  -->  SNMP
-Blackbox Exporter  --> ICMP
-Grafana  --> Visualisation
-Ansible  --> Automatisation
+
+	<img width="496" height="385" alt="{94FFBFA6-FAF3-4E1A-B78A-6091E80A03F5}" src="https://github.com/user-attachments/assets/9a65ccc3-4d2f-4f14-9bd7-3b795ae1d29d" />
+
 
 6. Fonctionnement
 
@@ -59,13 +53,8 @@ L’ensemble doit pouvoir s’initialiser sans intervention manuelle.
 
 plaintext
 
+<img width="372" height="136" alt="{C3BB8CB6-72E4-4142-81C8-0B97CF5D3C07}" src="https://github.com/user-attachments/assets/c79b51ca-d201-4a30-90b4-3db2ee482e91" />
 
-.
-├── ansible/        # Playbooks et rôles
-├── docker/         # Docker Compose et configs
-├── grafana/        # Dashboards
-├── prometheus/     # Configurations
-└── README.md
 
 8. Automatisation
 
