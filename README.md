@@ -68,13 +68,8 @@ L’objectif final est que la démonstration puisse être lancée uniquement à 
 
 
 9. État d’avancement
-
+    
     Architecture définie
     Docker opérationnel
     Supervision en cours
     Automatisation en partie
-
-
-
-🔜 Prochaine étape
-Préparer la présentation orale (phase 1) et finaliser la démo automatisée (phase 2).
