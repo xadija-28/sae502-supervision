@@ -1,0 +1,23 @@
+- name: Install required packages
+  apt:
+    name: wget
+    state: present
+    update_cache: yes
+
+- name: Download node_exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+    dest: /tmp/node_exporter.tar.gz
+
+- name: Extract node_exporter
+  unarchive:
+    src: /tmp/node_exporter.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+    creates: /usr/local/bin/node_exporter-1.8.1.linux-amd64
+
+- name: Start node_exporter in background
+  shell: |
+    nohup /usr/local/bin/node_exporter-1.8.1.linux-amd64/node_exporter \
+    > /var/log/node_exporter.log 2>&1 &
+
