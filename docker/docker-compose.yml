@@ -27,15 +27,11 @@ services:
     networks:
       backbone:
         ipv4_address: 10.0.0.254
-    ports:
-      - "161:161/udp"
     volumes:
-      - ./frr/router-central/frr.conf:/etc/frr/frr.conf
-      - ./snmp/snmpd-router.conf:/etc/snmp/snmpd.conf
+      - ./frr/router-central/frr.conf:/etc/frr/frr.conf:ro
+      - ./frr/router-central/daemons:/etc/frr/daemons:ro
     command: >
       sh -c "
-      apk add --no-cache net-snmp net-snmp-tools &&
-      snmpd -f -Lo -c /etc/snmp/snmpd.conf &
       sysctl -w net.ipv4.ip_forward=1 &&
       /usr/lib/frr/frrinit.sh start &&
       tail -f /dev/null
@@ -50,15 +46,11 @@ services:
         ipv4_address: 10.0.0.101
       lan1:
         ipv4_address: 10.10.1.254
-    ports:
-      - "1161:161/udp"
     volumes:
-      - ./frr/ce1/frr.conf:/etc/frr/frr.conf
-      - ./snmp/snmpd-ce1.conf:/etc/snmp/snmpd.conf
+      - ./frr/ce1/frr.conf:/etc/frr/frr.conf:ro
+      - ./frr/ce1/daemons:/etc/frr/daemons:ro
     command: >
       sh -c "
-      apk add --no-cache net-snmp net-snmp-tools &&
-      snmpd -f -Lo -c /etc/snmp/snmpd.conf &
       sysctl -w net.ipv4.ip_forward=1 &&
       /usr/lib/frr/frrinit.sh start &&
       tail -f /dev/null
@@ -73,50 +65,15 @@ services:
         ipv4_address: 10.0.0.102
       lan2:
         ipv4_address: 10.10.2.254
-    ports:
-      - "2161:161/udp"
     volumes:
-      - ./frr/ce2/frr.conf:/etc/frr/frr.conf
-      - ./snmp/snmpd-ce2.conf:/etc/snmp/snmpd.conf
+      - ./frr/ce2/frr.conf:/etc/frr/frr.conf:ro
+      - ./frr/ce2/daemons:/etc/frr/daemons:ro
     command: >
       sh -c "
-      apk add --no-cache net-snmp net-snmp-tools &&
-      snmpd -f -Lo -c /etc/snmp/snmpd.conf &
       sysctl -w net.ipv4.ip_forward=1 &&
       /usr/lib/frr/frrinit.sh start &&
       tail -f /dev/null
       "
-
-  lan1-switch:
-    image: ubuntu:24.04
-    container_name: lan1-switch
-    privileged: true
-    networks:
-      lan1:
-        ipv4_address: 10.10.1.2
-    tty: true
-    command: /bin/bash
-
-  lan2-switch:
-    image: ubuntu:24.04
-    container_name: lan2-switch
-    privileged: true
-    networks:
-      lan2:
-        ipv4_address: 10.10.2.2
-    tty: true
-    command: /bin/bash
-
-  snmp-exporter:
-    image: prom/snmp-exporter:latest
-    container_name: snmp-exporter
-    networks:
-      backbone:
-        ipv4_address: 10.0.0.10
-    volumes:
-      - ./snmp/snmp.yml:/etc/snmp_exporter/snmp.yml:ro
-    ports:
-      - "9116:9116"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
@@ -137,8 +94,6 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
 
   grafana:
     image: grafana/grafana:latest
@@ -150,4 +105,6 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     ports:
       - "3000:3000"
-
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
