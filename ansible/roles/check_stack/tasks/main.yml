@@ -1,0 +1,15 @@
+---
+- name: "[STACK] Conteneurs en cours (running)"
+  command: docker ps --format "{{ '{{' }}.Names{{ '}}' }}"
+  register: running_containers
+  changed_when: false
+
+- name: "[STACK] Résultat"
+  debug:
+    msg: >-
+      {% if running_containers.stdout_lines|length == 0 %}
+      ℹ️ Aucun conteneur en cours d’exécution.
+      {% else %}
+      ✅ Conteneurs UP: {{ running_containers.stdout_lines }}
+      {% endif %}
+

@@ -1,0 +1,36 @@
+---
+- name: "[ENV] Vérifier Docker"
+  command: docker --version
+  register: docker_version
+  changed_when: false
+
+- name: "[ENV] Afficher version Docker"
+  debug:
+    msg: "{{ docker_version.stdout }}"
+
+- name: "[ENV] Détecter Docker Compose v2 (docker compose)"
+  command: docker compose version
+  register: compose_v2
+  changed_when: false
+  failed_when: false
+
+- name: "[ENV] Détecter Docker Compose v1 (docker-compose)"
+  command: docker-compose --version
+  register: compose_v1
+  changed_when: false
+  failed_when: false
+
+- name: "[ENV] Choisir la commande Compose disponible"
+  set_fact:
+    compose_cmd: >-
+      {{ 'docker compose' if compose_v2.rc == 0 else 'docker-compose' if compose_v1.rc == 0 else '' }}
+
+- name: "[ENV] Stop si aucune version de Compose n'est installée"
+  fail:
+    msg: "❌ Ni 'docker compose' (v2) ni 'docker-compose' (v1) n'est disponible."
+  when: compose_cmd == ""
+
+- name: "[ENV] Compose retenu"
+  debug:
+    msg: "✅ Compose détecté : {{ compose_cmd }}"
+

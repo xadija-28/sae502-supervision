@@ -1,4 +1,0 @@
-- name: Install Python on Ubuntu containers
-  raw: |
-    apt-get update
-    apt-get install -y python3

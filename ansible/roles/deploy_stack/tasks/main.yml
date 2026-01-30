@@ -1,0 +1,14 @@
+---
+- name: "[DEPLOY] Déployer la stack Docker (en tâche de fond)"
+  command: "{{ compose_cmd }} up -d"
+  args:
+    chdir: "{{ playbook_dir }}/../../docker"
+  register: deploy_output
+  changed_when: true
+
+- name: "[DEPLOY] Résultat du déploiement"
+  debug:
+    msg:
+      - "✅ Stack lancée avec: {{ compose_cmd }} up -d"
+      - "📦 Dossier: {{ playbook_dir }}/../../docker"
+

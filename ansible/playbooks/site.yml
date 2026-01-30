@@ -1,0 +1,11 @@
+---
+- name: Supervision stack automation
+  hosts: localhost
+  connection: local
+  become: false
+
+  roles:
+    - check_environment
+    - check_stack
+    - deploy_stack
+    - post_checks

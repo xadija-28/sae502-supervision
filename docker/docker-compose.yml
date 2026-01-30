@@ -108,3 +108,15 @@ services:
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+  # =========================
+  # WEBHOOK ALERTES GRAFANA
+  # =========================
+  webhook:
+    build: ../webhook
+    container_name: grafana-webhook
+    networks:
+      backbone:
+        ipv4_address: 10.0.0.20
+    ports:
+      - "5001:5001"

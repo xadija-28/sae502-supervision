@@ -1,0 +1,37 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: router-central-alerts
+    folder: Supervision
+    interval: 1m
+
+    rules:
+      - uid: router-central-down
+        title: Router central DOWN
+        condition: A
+        for: 1m
+
+        noDataState: Alerting
+        execErrState: Alerting
+
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: probe_success{instance="router-central"} == 0
+              instant: true
+
+        annotations:
+          summary: Le routeur central ne répond plus aux sondes ICMP
+          description: |
+            Le routeur central est injoignable.
+            Une intervention est requise, Merci de prendre en compte les indications sur le git
+          runbook_url: https://github.com/xadija-28/sae502-supervision
+
+        notification_settings:
+          receiver: webhook-supervision
+

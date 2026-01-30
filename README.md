@@ -1,75 +1,181 @@
-Projet SAÉ 5.02
-Supervision automatisée d’une infrastructure réseau virtualisée
-1. Présentation
-Ce projet, dans le cadre de la SAÉ 5.02, consiste à déployer une infrastructure réseau virtualisée avec supervision.
-On utilise des équipements virtuels et des outils conteneurisés pour simuler un environnement réel, en supervisant via SNMP et ICMP, de façon reproductible et automatisée.
-3. Objectifs
 
-    Déployer une infrastructure réseau virtualisée
-    Installer des routeurs virtuels (FRRouting)
-    Superviser via SNMP et ICMP
-    Centraliser les métriques
-    Automatiser le déploiement et la configuration
+# SAE 5.02 – Supervision réseau automatisée
 
-4. Périmètre
-Inclus
+**Docker · Prometheus · Grafana · Alerting · Ansible**
 
-    Infrastructure virtualisée
-    Routeurs FRRouting
-    Réseaux LAN et backbone
-    Supervision SNMP/ICMP
-    Visualisation (Grafana)
-    Déploiement automatisé
+## 1. Objectif du projet
 
-Hors périmètre
+L’objectif de ce projet est de **déployer automatiquement une solution de supervision réseau** permettant :
 
-    Équipements physiques
-    Sécurité avancée (ACL, VPN, chiffrement)
+* de superviser l’état de routeurs (ICMP),
+* de visualiser l’état du réseau via Grafana,
+* de déclencher des alertes en cas de panne,
+* d’automatiser le déploiement avec Ansible.
 
-4. Architecture
+Le projet est conçu pour être **déployé en une seule commande**, sans configuration manuelle dans l’interface graphique.
 
-    Réseaux virtuels (LAN, backbone)
-    Routeurs virtuels connectés
-    Plateforme de supervision centralisée
+---
 
-Déployé via Docker pour rapidité et cohérence.
+## 2. Architecture générale
 
-5. Outils
+La solution repose sur **trois briques principales** :
 
-	<img width="496" height="385" alt="{94FFBFA6-FAF3-4E1A-B78A-6091E80A03F5}" src="https://github.com/user-attachments/assets/9a65ccc3-4d2f-4f14-9bd7-3b795ae1d29d" />
+* **Docker** : exécution des services (Prometheus, Grafana, routeurs, webhook)
+* **Grafana** : visualisation et alerting
+* **Ansible** : orchestration et automatisation du déploiement
 
+---
 
-6. Fonctionnement
+## 3. Organisation du projet
 
-    Déploiement via Docker Compose
-    Mise en place des routeurs et réseaux
-    Activation SNMP sur équipements
-    Collecte métriques par Prometheus
-    Visualisation dans Grafana
-    Automatisation via Ansible (scripts/playbooks)
+```
+sae502-supervision/
+├── ansible/
+├── docker/
+├── grafana/
+├── README.md
+```
 
-L’ensemble doit pouvoir s’initialiser sans intervention manuelle.
-7. Organisation du dépôt
+### 3.1 Dossier `ansible/`
 
-plaintext
+Ce dossier contient **l’automatisation complète du déploiement**.
 
-<img width="372" height="136" alt="{C3BB8CB6-72E4-4142-81C8-0B97CF5D3C07}" src="https://github.com/user-attachments/assets/c79b51ca-d201-4a30-90b4-3db2ee482e91" />
+```
+ansible/
+├── ansible.cfg
+├── inventory/
+│   └── hosts.ini
+├── playbooks/
+│   └── site.yml
+└── roles/
+    ├── check_environment/
+    ├── check_stack/
+    ├── deploy_stack/
+    └── post_checks/
+```
 
+#### Rôles Ansible
 
-8. Automatisation
+* **check_environment**
+  Vérifie que Docker et Docker Compose sont bien installés sur la machine.
 
-  L’automatisation repose sur :
+* **check_stack**
+  Vérifie si des conteneurs Docker sont déjà présents avant le déploiement.
 
-Docker Compose pour l’orchestration des services
+* **deploy_stack**
+  Lance automatiquement la stack Docker via `docker compose up -d`.
 
-Ansible pour la préparation de l’environnement et le déploiement
+* **post_checks**
+  Vérifie que les services sont bien accessibles :
 
-L’objectif final est que la démonstration puisse être lancée uniquement à partir des scripts et playbooks, conformément aux attentes de la SAÉ.
+  * Grafana
+  * Prometheus
+  * Webhook d’alertes
 
+ **Un seul playbook est exécuté** :
 
-9. État d’avancement
-    
-    Architecture définie
-    Docker opérationnel
-    Supervision en cours
-    Automatisation en partie
+```bash
+ansible-playbook playbooks/site.yml
+```
+
+---
+
+### 3.2 Dossier `docker/`
+
+C’est **le cœur technique du projet**.
+
+```
+docker/
+├── docker-compose.yml
+├── prometheus/
+│   └── prometheus.yml
+├── grafana/
+│   ├── dashboards/
+│   └── provisioning/
+│       ├── datasources/
+│       ├── dashboards/
+│       └── alerting/
+├── webhook/
+└── frr/
+```
+
+#### Services déployés
+
+* **Routeurs FRR** (router-central, CE1, CE2)
+* **Prometheus**
+* **Blackbox Exporter (ICMP)**
+* **Grafana**
+* **Webhook Flask (alertes)**
+
+Tous les services sont lancés **automatiquement** par Docker Compose.
+
+---
+
+### 3.3 Grafana – Dashboards et alertes
+
+La configuration Grafana est **provisionnée automatiquement** via des volumes :
+
+* Dashboards chargés automatiquement
+* Datasource Prometheus configurée
+* Alertes Grafana préconfigurées
+* Point de contact webhook déjà défini
+
+Aucune action manuelle n’est nécessaire dans l’interface Grafana.
+
+---
+
+## 4. Alerting
+
+### Fonctionnement
+
+* Prometheus détecte une panne ICMP (`probe_success == 0`)
+* Grafana déclenche une alerte
+* L’alerte est envoyée vers un **webhook Flask**
+* Le webhook affiche l’alerte avec :
+
+  * équipement concerné
+  * statut
+  * résumé
+  * procédure de dépannage
+  * lien vers le runbook
+
+Les alertes sont **persistantes** grâce aux volumes Grafana :
+un `docker down` suivi d’un `docker up` **ne supprime rien**.
+
+---
+
+## 5. Déploiement du projet (démonstration)
+
+### Étape 
+
+```bash
+cd sae502-supervision/ansible
+ansible-playbook playbooks/site.yml
+```
+
+➡️ Cette commande :
+
+* vérifie l’environnement,
+* déploie la stack Docker,
+* vérifie que tous les services sont fonctionnels.
+
+Aucune configuration manuelle n’est requise.
+
+---
+
+## 6. Accès aux services
+
+* Grafana : [http://localhost:3000](http://localhost:3000)
+* Prometheus : [http://localhost:9090](http://localhost:9090)
+* Webhook alertes : [http://localhost:5001](http://localhost:5001)
+
+---
+
+## 7. Conclusion
+
+Ce projet démontre :
+
+* une **supervision réseau fonctionnelle**,
+* un **déploiement entièrement automatisé**,
+* une **architecture claire et reproductible**,
+* une séparation nette entre orchestration (Ansible) et exécution (Doccker)
